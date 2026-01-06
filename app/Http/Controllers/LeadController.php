@@ -6,6 +6,7 @@ use App\Services\LeadService;
 use App\DTO\Lead\CreateLeadDTO;
 use App\DTO\Lead\LeadResponseDTO;
 use Illuminate\Http\Request;
+use App\DTO\Lead\LeadFilterDTO;
 
 class LeadController extends Controller
 {
@@ -35,10 +36,18 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $leads = $this->service->list($request->all());
+        $filterDto = LeadFilterDTO::fromRequest($request->all());
+        $leads = $this->service->list($filterDto);
 
-        return response()->json(
-            $leads->map(fn ($lead) => LeadResponseDTO::fromModel($lead))
-        );
+        return response()->json([
+            'data' => $leads->getCollection()
+                ->map(fn ($lead) => LeadResponseDTO::fromModel($lead)),
+            'meta' => [
+                'current_page' => $leads->currentPage(),
+                'per_page' => $leads->perPage(),
+                'total' => $leads->total(),
+                'last_page' => $leads->lastPage(),
+            ]
+        ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\Contracts\LeadRepositoryInterface;
 use App\DTO\Lead\CreateLeadDTO;
+use App\DTO\Lead\LeadFilterDTO;
 
 class LeadService
 {
@@ -16,7 +17,7 @@ class LeadService
         return $this->repository->create($dto);
     }
 
-    public function list(array $filters = [])
+    public function list(LeadFilterDTO $filters)
     {
         return $this->repository->getAll($filters);
     }

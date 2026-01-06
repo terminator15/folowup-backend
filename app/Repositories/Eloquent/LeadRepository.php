@@ -6,6 +6,8 @@ use App\Models\Lead;
 use App\Repositories\Contracts\LeadRepositoryInterface;
 use App\DTO\Lead\CreateLeadDTO;
 use Illuminate\Support\Collection;
+use App\DTO\Lead\LeadFilterDTO;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class LeadRepository implements LeadRepositoryInterface
 {
@@ -30,23 +32,35 @@ class LeadRepository implements LeadRepositoryInterface
         return $lead->id;
     }
 
-    public function getAll(array $filters = []): Collection
+
+    public function getAll(LeadFilterDTO $filters): LengthAwarePaginator
     {
         $query = Lead::with('meta');
 
-        if (!empty($filters['lead_type'])) {
-            $query->where('lead_type', $filters['lead_type']);
+        if ($filters->leadType) {
+            $query->where('lead_type', $filters->leadType);
         }
 
-        if (!empty($filters['min_amount'])) {
-            $query->where('deal_value', '>=', $filters['min_amount']);
+        if ($filters->minAmount !== null) {
+            $query->where('deal_value', '>=', $filters->minAmount);
         }
 
-        if (!empty($filters['max_amount'])) {
-            $query->where('deal_value', '<=', $filters['max_amount']);
+        if ($filters->maxAmount !== null) {
+            $query->where('deal_value', '<=', $filters->maxAmount);
         }
 
-        return $query->get();
+        // Sorting (safe allowlist)
+        $allowedSorts = ['created_at', 'deal_value', 'name'];
+        $sortBy = in_array($filters->sortBy, $allowedSorts)
+            ? $filters->sortBy
+            : 'created_at';
+
+        $query->orderBy($sortBy, $filters->sortOrder);
+
+        return $query->paginate(
+            perPage: $filters->perPage,
+            page: $filters->page
+        );
     }
 
 }
