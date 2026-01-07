@@ -34,4 +34,31 @@ class User extends Authenticatable
         'password_set_at' => 'datetime',
         'is_active' => 'boolean',
     ];
+
+    public function workspaces()
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_user')
+            ->withPivot(['role', 'designation', 'status', 'joined_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * MVP assumption:
+     * - One active workspace per user
+     */
+    public function currentWorkspace()
+    {
+        return $this->workspaces()
+            ->wherePivot('status', 'active')
+            ->first();
+    }
+
+    public function isManager(): bool
+    {
+        $workspace = $this->currentWorkspace();
+
+        return $workspace
+            && in_array($workspace->pivot->role, ['manager', 'admin']);
+    }
+
 }

@@ -4,7 +4,12 @@ namespace App\DTO\Lead;
 
 class LeadFilterDTO
 {
+
+    // public readonly int $userId;
+
     public function __construct(
+        public readonly ?int $workspaceId,
+        public readonly int $userId,
         public readonly ?string $leadType,
         public readonly ?float $minAmount,
         public readonly ?float $maxAmount,
@@ -14,9 +19,11 @@ class LeadFilterDTO
         public readonly string $sortOrder,
     ) {}
 
-    public static function fromRequest(array $data): self
+    public static function fromRequest(array $data, int $userId): self
     {
         return new self(
+            workspaceId: $data['workspace_id'] ?? null,
+            userId: $userId,
             leadType: $data['lead_type'] ?? null,
             minAmount: isset($data['min_amount']) ? (float) $data['min_amount'] : null,
             maxAmount: isset($data['max_amount']) ? (float) $data['max_amount'] : null,

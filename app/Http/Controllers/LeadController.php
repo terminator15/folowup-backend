@@ -36,7 +36,7 @@ class LeadController extends Controller
 
     public function index(Request $request)
     {
-        $filterDto = LeadFilterDTO::fromRequest($request->all());
+        $filterDto = LeadFilterDTO::fromRequest($request->all(), $request->user()->id);
         $leads = $this->service->list($filterDto);
 
         return response()->json([

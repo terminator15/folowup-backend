@@ -17,8 +17,8 @@ class LeadService
         return $this->repository->create($dto);
     }
 
-    public function list(LeadFilterDTO $filters)
+    public function list(LeadFilterDTO $dto)
     {
-        return $this->repository->getAll($filters);
+        return $this->repository->getAll($dto);
     }
 }

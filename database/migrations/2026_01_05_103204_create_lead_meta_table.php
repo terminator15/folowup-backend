@@ -12,15 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lead_meta', function (Blueprint $table) {
-    $table->id();
+            $table->id();
+            $table->unsignedBigInteger('lead_id');
+            $table->string('key');
+            $table->text('value')->nullable();
 
-    $table->unsignedBigInteger('lead_id');
-    $table->string('key');
-    $table->text('value')->nullable();
-
-    $table->index('lead_id');
-    $table->index('key');
-});
+            $table->index('lead_id');
+            $table->index('key');
+        });
     }
 
     /**

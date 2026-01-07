@@ -11,5 +11,5 @@ interface LeadRepositoryInterface
 {
     public function create(CreateLeadDTO $dto): int;
 
-    public function getAll(LeadFilterDTO $filters): LengthAwarePaginator;
+    public function getAll(LeadFilterDTO $dto): LengthAwarePaginator;
 }

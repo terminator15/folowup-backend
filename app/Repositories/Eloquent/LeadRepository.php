@@ -8,6 +8,7 @@ use App\DTO\Lead\CreateLeadDTO;
 use Illuminate\Support\Collection;
 use App\DTO\Lead\LeadFilterDTO;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Models\User;
 
 class LeadRepository implements LeadRepositoryInterface
 {
@@ -33,33 +34,42 @@ class LeadRepository implements LeadRepositoryInterface
     }
 
 
-    public function getAll(LeadFilterDTO $filters): LengthAwarePaginator
+    public function getAll(LeadFilterDTO $dto): LengthAwarePaginator
     {
         $query = Lead::with('meta');
 
-        if ($filters->leadType) {
-            $query->where('lead_type', $filters->leadType);
+        if ($dto->workspaceId) {
+        // Team workspace
+        $query->where('workspace_id', $dto->workspaceId);
+        } else {
+            // My Personal
+            $query->whereNull('workspace_id')
+                ->where('owner_id', $dto->userId);
         }
 
-        if ($filters->minAmount !== null) {
-            $query->where('deal_value', '>=', $filters->minAmount);
+        if ($dto->leadType) {
+            $query->where('lead_type', $dto->leadType);
         }
 
-        if ($filters->maxAmount !== null) {
-            $query->where('deal_value', '<=', $filters->maxAmount);
+        if ($dto->minAmount !== null) {
+            $query->where('deal_value', '>=', $dto->minAmount);
+        }
+
+        if ($dto->maxAmount !== null) {
+            $query->where('deal_value', '<=', $dto->maxAmount);
         }
 
         // Sorting (safe allowlist)
         $allowedSorts = ['created_at', 'deal_value', 'name'];
-        $sortBy = in_array($filters->sortBy, $allowedSorts)
-            ? $filters->sortBy
+        $sortBy = in_array($dto->sortBy, $allowedSorts)
+            ? $dto->sortBy
             : 'created_at';
 
-        $query->orderBy($sortBy, $filters->sortOrder);
+        $query->orderBy($sortBy, $dto->sortOrder);
 
         return $query->paginate(
-            perPage: $filters->perPage,
-            page: $filters->page
+            perPage: $dto->perPage,
+            page: $dto->page
         );
     }
 
