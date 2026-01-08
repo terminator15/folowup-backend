@@ -13,4 +13,33 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/leads', [LeadController::class, 'store']);
     Route::get('/leads', [LeadController::class, 'index']);
+    Route::get('/leads/{lead}', [LeadController::class, 'show']);
+    Route::put('/leads/{lead}', [LeadController::class, 'update']);
+    Route::delete('/leads/{lead}', [LeadController::class, 'destroy']);
+
+    Route::post(
+        '/workspaces/{workspace}/invite',
+        [WorkspaceInvitationController::class, 'invite']
+    );
+
+    Route::get(
+        '/my/workspace-invitations',
+        [WorkspaceInvitationController::class, 'myInvites']
+    );
+
+    Route::post(
+        '/workspace-invitations/{invite}/accept',
+        [WorkspaceInvitationController::class, 'accept']
+    );
+
+    Route::post(
+        '/workspace-invitations/{invite}/reject',
+        [WorkspaceInvitationController::class, 'reject']
+    );
+
+    Route::delete(
+        '/workspaces/{workspace}/users/{user}',
+        [WorkspaceInvitationController::class, 'removeMember']
+    );
 });
+

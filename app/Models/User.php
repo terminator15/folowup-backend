@@ -61,4 +61,19 @@ class User extends Authenticatable
             && in_array($workspace->pivot->role, ['manager', 'admin']);
     }
 
+    public function workspaceMembership(int $workspaceId)
+    {
+        return $this->workspaces()
+            ->where('workspace_id', $workspaceId)
+            ->where('status', 'active')
+            ->first();
+    }
+
+    public function isManagerOf(int $workspaceId): bool
+    {
+        $membership = $this->workspaceMembership($workspaceId);
+
+        return $membership && in_array($membership->role, ['admin', 'manager']);
+    }
+
 }
