@@ -1,12 +1,15 @@
 openapi: 3.0.3
 info:
   title: Folowup Backend API
-  description: API documentation for Folowup – Lead Management System
+  description: Backend APIs for Folowup – lead management with workspaces
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8000/api
-    description: Local development server
+  - url: http://127.0.0.1:8000/api
+    description: Local development
+
+security:
+  - bearerAuth: []
 
 components:
   securitySchemes:
@@ -16,27 +19,20 @@ components:
       bearerFormat: JWT
 
   schemas:
-    User:
+    Workspace:
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-        email:
-          type: string
-        created_at:
-          type: string
-          format: date-time
+        is_team:
+          type: boolean
 
     Lead:
       type: object
       properties:
         id:
-          type: integer
-        workspace_id:
-          type: integer
-        owner_id:
           type: integer
         name:
           type: string
@@ -44,57 +40,53 @@ components:
           type: string
         lead_type:
           type: string
-          example: home_loan
         deal_value:
-          type: number
-          example: 5000000
-        meta:
-          type: object
-          additionalProperties:
-            type: string
-        created_at:
-          type: string
-          format: date-time
+          type: integer
+        workspace_id:
+          type: integer
+          nullable: true
+        owner_id:
+          type: integer
 
-security:
-  - bearerAuth: []
+    Invitation:
+      type: object
+      properties:
+        id:
+          type: integer
+        workspace_id:
+          type: integer
+        email:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
 
 paths:
 
-  /auth/login:
+  /login:
     post:
+      summary: Login
       tags: [Auth]
-      summary: Login using email & password
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [email, password]
               properties:
                 email:
                   type: string
                 password:
                   type: string
       responses:
-        200:
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                  user:
-                    $ref: '#/components/schemas/User'
+        "200":
+          description: Logged in successfully
 
-  /auth/google:
+  /workspaces:
     post:
-      tags: [Auth]
-      summary: Login / register using Google
-      description: OAuth handled on frontend, backend accepts Google payload
+      summary: Create workspace
+      tags: [Workspaces]
       requestBody:
         required: true
         content:
@@ -102,96 +94,113 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
                 name:
                   type: string
-                google_id:
-                  type: string
       responses:
-        200:
-          description: Login successful
+        "201":
+          description: Workspace created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workspace"
 
-  /auth/set-password:
+    get:
+      summary: List my workspaces
+      tags: [Workspaces]
+      responses:
+        "200":
+          description: List of workspaces
+
+  /workspaces/{workspaceId}/members:
+    get:
+      summary: List workspace members
+      tags: [Workspaces]
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Workspace members
+
+  /workspaces/{workspaceId}/invite:
     post:
-      tags: [Auth]
-      summary: Set password for Google user
-      security:
-        - bearerAuth: []
+      summary: Invite user to workspace (manager only)
+      tags: [Invitations]
+      parameters:
+        - in: path
+          name: workspaceId
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [password, password_confirmation]
               properties:
-                password:
+                email:
                   type: string
-                password_confirmation:
+                role:
                   type: string
+                  example: member
       responses:
-        200:
-          description: Password set successfully
+        "201":
+          description: Invitation created
 
-  /me:
+  /my/workspace-invitations:
     get:
-      tags: [Auth]
-      summary: Get logged-in user
-      security:
-        - bearerAuth: []
+      summary: List my workspace invitations
+      tags: [Invitations]
       responses:
-        200:
-          description: User profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+        "200":
+          description: Invitations list
+
+  /workspace-invitations/{invitationId}/accept:
+    post:
+      summary: Accept workspace invitation
+      tags: [Invitations]
+      parameters:
+        - in: path
+          name: invitationId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Invitation accepted
+
+  /workspace-invitations/{invitationId}/reject:
+    post:
+      summary: Reject workspace invitation
+      tags: [Invitations]
+      parameters:
+        - in: path
+          name: invitationId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Invitation rejected
 
   /leads:
-    get:
-      tags: [Leads]
-      summary: Get all leads
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: lead_type
-          schema:
-            type: string
-        - in: query
-          name: min_amount
-          schema:
-            type: number
-        - in: query
-          name: max_amount
-          schema:
-            type: number
-      responses:
-        200:
-          description: List of leads
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Lead'
-
     post:
+      summary: Create lead (My Personal or Workspace)
       tags: [Leads]
-      summary: Create a new lead
-      security:
-        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [name, phone]
               properties:
                 workspace_id:
                   type: integer
+                  nullable: true
                 name:
                   type: string
                 phone:
@@ -199,11 +208,98 @@ paths:
                 lead_type:
                   type: string
                 deal_value:
-                  type: number
+                  type: integer
                 meta:
                   type: object
-                  additionalProperties:
-                    type: string
       responses:
-        201:
-          description: Lead created successfully
+        "201":
+          description: Lead created
+
+    get:
+      summary: List leads (My Personal or Workspace)
+      tags: [Leads]
+      parameters:
+        - in: query
+          name: workspace_id
+          schema:
+            type: integer
+        - in: query
+          name: lead_type
+          schema:
+            type: string
+        - in: query
+          name: min_amount
+          schema:
+            type: integer
+        - in: query
+          name: max_amount
+          schema:
+            type: integer
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated leads list
+
+  /leads/{leadId}:
+    get:
+      summary: View lead
+      tags: [Leads]
+      parameters:
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lead details
+
+    put:
+      summary: Update lead (owner only)
+      tags: [Leads]
+      parameters:
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                lead_type:
+                  type: string
+                deal_value:
+                  type: integer
+                meta:
+                  type: object
+      responses:
+        "200":
+          description: Lead updated
+
+    delete:
+      summary: Delete lead (owner only)
+      tags: [Leads]
+      parameters:
+        - in: path
+          name: leadId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lead deleted
