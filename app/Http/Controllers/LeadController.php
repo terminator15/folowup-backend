@@ -7,6 +7,8 @@ use App\DTO\Lead\CreateLeadDTO;
 use App\DTO\Lead\LeadResponseDTO;
 use Illuminate\Http\Request;
 use App\DTO\Lead\LeadFilterDTO;
+use App\DTO\Lead\UpdateLeadDTO;
+use App\Models\Lead;
 
 class LeadController extends Controller
 {
@@ -50,4 +52,44 @@ class LeadController extends Controller
             ]
         ]);
     }
+
+    public function show(Lead $lead)
+    {
+        $this->authorize('view', $lead);
+
+        return response()->json([
+            'id' => $lead->id,
+            'name' => $lead->name,
+            'phone' => $lead->phone,
+            'lead_type' => $lead->lead_type,
+            'deal_value' => $lead->deal_value,
+            'owner_id' => $lead->owner_id,
+            'workspace_id' => $lead->workspace_id,
+            'meta' => $lead->meta,
+        ]);
+    }
+
+    public function update(Request $request, Lead $lead)
+    {
+        $this->authorize('update', $lead);
+
+        $dto = UpdateLeadDTO::fromRequest($request->all());
+
+        $lead = $this->service->update($lead, $dto);
+
+        return response()->json($lead);
+    }
+
+
+    public function destroy(Lead $lead)
+    {
+        $this->authorize('delete', $lead);
+
+        $lead->delete();
+        return response()->json([
+            'message' => 'Lead deleted successfully'
+        ]);
+    }
+    
+
 }

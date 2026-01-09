@@ -38,8 +38,7 @@ class User extends Authenticatable
     public function workspaces()
     {
         return $this->belongsToMany(Workspace::class, 'workspace_user')
-            ->withPivot(['role', 'designation', 'status', 'joined_at'])
-            ->withTimestamps();
+            ->withPivot(['role', 'designation', 'status', 'joined_at']);
     }
 
     /**
@@ -59,6 +58,35 @@ class User extends Authenticatable
 
         return $workspace
             && in_array($workspace->pivot->role, ['manager', 'admin']);
+    }
+
+    public function workspaceMembership(int $workspaceId)
+    {
+        return $this->workspaces()
+            ->where('workspace_id', $workspaceId)
+            ->where('status', 'active')
+            ->first();
+    }
+
+    public function isManagerOf(int $workspaceId): bool
+    {
+        $membership = $this->workspaceMembership($workspaceId);
+        return $membership && in_array($membership->pivot->role, ['admin', 'manager']);
+    }
+
+    public function workspaceMemberships()
+    {
+        return $this->hasMany(WorkspaceUser::class);
+    }
+
+    public function sentInvitations()
+    {
+        return $this->hasMany(WorkspaceInvitation::class, 'invited_by');
+    }
+
+    public function receivedInvitations()
+    {
+        return $this->hasMany(WorkspaceInvitation::class, 'user_id');
     }
 
 }
