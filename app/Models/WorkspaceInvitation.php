@@ -8,12 +8,17 @@ class WorkspaceInvitation extends Model
 {
     protected $fillable = [
         'workspace_id',
-        'email',
+        'invited_user_id',
         'invited_by',
         'role',
         'status',
         'expires_at',
     ];
+
+    public function invitedUser()
+    {
+        return $this->belongsTo(User::class, 'invited_user_id');
+    }
 
     public function workspace()
     {

@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Models\User;
 use App\Models\Workspace;
 use App\Models\WorkspaceInvitation;
 use App\Services\WorkspaceInvitationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\WorkspaceUser;
 
 class WorkspaceInvitationController extends Controller
 {
+
+    use AuthorizesRequests;
+
     public function __construct(
         private WorkspaceInvitationService $service
     ) {}
@@ -19,16 +25,16 @@ class WorkspaceInvitationController extends Controller
      */
     public function invite(Request $request, Workspace $workspace)
     {
-        $this->authorize('invite', $workspace);
-
         $data = $request->validate([
-            'email' => 'required|email'
+            'email' => 'required|email',
+            'role' => 'required|in:member',
         ]);
-
+        $this->authorize('invite', [$workspace, $request->role]);
+        $user = Auth::user();
         $invite = $this->service->invite(
             $workspace,
-            $data['email'],
-            $request->user()
+            $request->email,
+            $user,
         );
 
         return response()->json($invite, 201);
@@ -39,26 +45,73 @@ class WorkspaceInvitationController extends Controller
      */
     public function myInvites(Request $request)
     {
-        return WorkspaceInvitation::with('workspace', 'inviter')
-            ->where('email', $request->user()->email)
+        $user = Auth::user();
+
+        $invitations = WorkspaceInvitation::with('workspace', 'inviter')
+            ->where('invited_by', $user->id)
             ->where('status', 'pending')
-            ->get();
+            ->get()
+            ->groupBy(fn ($invite) => $invite->inviter->id)
+            ->map(function ($items) {
+                return [
+                    'inviter' => $items->first()->inviter,
+                    'invitations' => $items->map(fn ($i) => [
+                        'id' => $i->id,
+                        'invited_user_id' => $i->invited_user_id,
+                        'role' => $i->role,
+                        'status' => $i->status,
+                        'workspace' => $i->workspace,
+                        'created_at' => $i->created_at,
+                    ]),
+                ];
+            })
+            ->values();
+
+        return response()->json($invitations);
+
     }
 
     /**
      * Accept invite
      */
-    public function accept(WorkspaceInvitation $invite, Request $request)
+    public function accept(int $id)
     {
+        $user = auth()->user();
 
-        $this->authorize('accept', $invite);
+        $invitation = WorkspaceInvitation::where('id', $id)
+            ->where('invited_user_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
 
-        $this->service->accept($invite, $request->user());
+        if (!$invitation) {
+            return response()->json([
+                'message' => 'Invitation not found'
+            ], 404);
+        }
+        // Add user to workspace
+        WorkspaceUser::firstOrCreate(
+            [
+                'workspace_id' => $invitation->workspace_id,
+                'user_id' => $user->id,
+            ],
+            [
+                'role' => $invitation->role,
+                'status' => 'active',
+                'joined_at' => now(),
+            ]
+        );
+
+        // Mark invitation accepted
+        $invitation->update([
+            'status' => 'accepted',
+            'responded_at' => now(),
+        ]);
 
         return response()->json([
-            'message' => 'Invitation accepted'
+            'message' => 'Invitation accepted successfully'
         ]);
     }
+
 
     /**
      * Reject invite

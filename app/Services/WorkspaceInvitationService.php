@@ -15,14 +15,25 @@ class WorkspaceInvitationService
      */
     public function invite(
         Workspace $workspace,
-        string $email,
+        string $invitedUserEmail,
         User $inviter
     ): WorkspaceInvitation {
+
+        $user = User::where('email', $invitedUserEmail)->first();
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'email' => 'User does not exist in the system',
+            ]);
+        }
+
         // Already a member?
         $alreadyMember = $workspace->users()
-            ->where('email', $email)
+            ->where([
+                'user_id' => $user->id,
+                'status' => 'active'
+            ])
             ->exists();
-
+            
         if ($alreadyMember) {
             throw ValidationException::withMessages([
                 'email' => 'User is already a member of this workspace'
@@ -32,7 +43,7 @@ class WorkspaceInvitationService
         // Existing pending invite?
         $existingInvite = WorkspaceInvitation::where([
             'workspace_id' => $workspace->id,
-            'email' => $email,
+            'invited_user_id' => $user->id,
             'status' => 'pending',
         ])->first();
 
@@ -44,7 +55,7 @@ class WorkspaceInvitationService
 
         return WorkspaceInvitation::create([
             'workspace_id' => $workspace->id,
-            'email' => $email,
+            'invited_user_id' => $user->id,
             'invited_by' => $inviter->id,
             'role' => 'member',
             'status' => 'pending',

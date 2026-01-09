@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LeadController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkspaceController;
+use App\Http\Controllers\WorkspaceInvitationController;
 
 Route::post('/auth/google', [AuthController::class, 'google']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -17,13 +19,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/leads/{lead}', [LeadController::class, 'update']);
     Route::delete('/leads/{lead}', [LeadController::class, 'destroy']);
 
+    Route::get('/workspaces', [WorkspaceController::class, 'index']);
+    Route::post('/workspaces', [WorkspaceController::class, 'store']);
+    Route::get(
+        '/workspaces/{workspace}/members',
+        [WorkspaceController::class, 'members']
+    );
     Route::post(
         '/workspaces/{workspace}/invite',
         [WorkspaceInvitationController::class, 'invite']
     );
 
     Route::get(
-        '/my/workspace-invitations',
+        '/workspace-invitations',
         [WorkspaceInvitationController::class, 'myInvites']
     );
 

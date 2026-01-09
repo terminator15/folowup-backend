@@ -20,8 +20,8 @@ class WorkspaceInvitationPolicy
      */
     public function accept(User $user, WorkspaceInvitation $invite): bool
     {
-        return $user->email === $invite->email
-            && $invite->status === 'pending';
+        return $invite->invited_user_id === $user->id
+        && $invite->status === 'pending';
     }
 
     /**

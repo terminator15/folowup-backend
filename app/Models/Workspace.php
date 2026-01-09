@@ -23,8 +23,7 @@ class Workspace extends Model
                 'designation',
                 'status',
                 'joined_at',
-            ])
-            ->withTimestamps();
+            ]);
     }
 
     /**
@@ -35,5 +34,15 @@ class Workspace extends Model
         return $this->users()
             ->wherePivotIn('role', ['manager', 'admin'])
             ->wherePivot('status', 'active');
+    }
+
+     public function invitations()
+    {
+        return $this->hasMany(WorkspaceInvitation::class);
+    }
+
+     public function members()
+    {
+        return $this->hasMany(WorkspaceUser::class);
     }
 }
