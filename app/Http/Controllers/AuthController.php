@@ -17,6 +17,8 @@ class AuthController extends Controller
     {
         $request->validate([
             'id_token' => 'required|string',
+            'workspace_name' => 'sometimes|nullable|string',
+        
         ]);
 
         // Verify Google token
@@ -43,18 +45,26 @@ class AuthController extends Controller
                     'is_active'     => true,
                 ]);
 
-                // Create hidden personal workspace
-                $workspaceId = DB::table('workspaces')->insertGetId([
-                    'name'       => null,
-                    'is_team'    => false,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                if (!empty($request->workspace_name)) {
+                    $workspaceId = DB::table('workspaces')->insertGetId([
+                        'name'       => $request->workspace_name,
+                        'is_team'    => true,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                 } else {
+                    $workspaceId = DB::table('workspaces')->insertGetId([
+                        'name'       => null,
+                        'is_team'    => false,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                 }
 
                 DB::table('workspace_user')->insert([
                     'workspace_id' => $workspaceId,
                     'user_id'      => $user->id,
-                    'role'         => 'admin',
+                    'role'         => !empty($request->workspace_name) ? 'manager' : 'member',
                     'joined_at'    => now(),
                     'status'       => 'active',
                 ]);
