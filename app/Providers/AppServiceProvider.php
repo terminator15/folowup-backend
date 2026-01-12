@@ -14,6 +14,7 @@ use App\Models\Workspace;
 use App\Policies\WorkspacePolicy;
 use App\Models\WorkspaceInvitation;
 use App\Policies\WorkspaceInvitationPolicy;
+use Laravel\Socialite\Facades\Socialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,10 +34,20 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(
                 $request->user()?->id ?: $request->ip()
             );
         });
+
+        Socialite::extend('google', function ($app) {
+            $config = $app['config']['services.google'];
+            return Socialite::buildProvider(
+                \Laravel\Socialite\Two\GoogleProvider::class,
+                $config
+            );
+        });
+
     }
 }
