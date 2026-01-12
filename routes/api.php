@@ -5,6 +5,7 @@ use App\Http\Controllers\LeadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
+use App\Http\Controllers\LeadActivityController;
 
 Route::post('/auth/google', [AuthController::class, 'google']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -49,5 +50,12 @@ Route::middleware('auth:sanctum')->group(function () {
         '/workspaces/{workspace}/users/{user}',
         [WorkspaceInvitationController::class, 'removeMember']
     );
+
+    Route::get('/leads/{lead}/activities', [LeadActivityController::class, 'index']);
+
+    Route::post('/leads/{lead}/note', [LeadActivityController::class, 'addNote']);
+    Route::post('/leads/{lead}/status', [LeadActivityController::class, 'changeStatus']);
+    Route::post('/leads/{lead}/followup', [LeadActivityController::class, 'addFollowup']);
+    Route::post('/leads/{lead}/call-log', [LeadActivityController::class, 'logCall']);
 });
 
