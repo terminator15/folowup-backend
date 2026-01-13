@@ -40,6 +40,7 @@ class AuthController extends Controller
                     'name'          => $googleUser->name,
                     'email'         => $googleUser->email,
                     'google_id'     => $googleUser->id,
+                    'password'      => bcrypt(Str::random(32)),
                     'registered_at' => now(),
                     'last_login_at' => now(),
                     'is_active'     => true,
@@ -53,12 +54,13 @@ class AuthController extends Controller
                         'updated_at' => now(),
                     ]);
                  } else {
-                    $workspaceId = DB::table('workspaces')->insertGetId([
-                        'name'       => null,
-                        'is_team'    => false,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    #todo create a default personal workspace for the user
+                    // $workspaceId = DB::table('workspaces')->insertGetId([
+                    //     'name'       => null,
+                    //     'is_team'    => false,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now(),
+                    // ]);
                  }
 
                 DB::table('workspace_user')->insert([
