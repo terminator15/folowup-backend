@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -132,6 +133,7 @@ class AuthController extends Controller
      */
     public function setPassword(Request $request)
     {
+        // echo "dsdsds";die;
         $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ]);
