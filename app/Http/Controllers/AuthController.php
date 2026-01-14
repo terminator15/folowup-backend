@@ -82,6 +82,11 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth')->plainTextToken;
 
+            $role = DB::table('workspace_user')
+                ->where('user_id', $user->id)
+                ->value('role');
+            $user->role = $role;
+            
             return response()->json([
                 'token' => $token,
                 'user'  => $user,
@@ -121,7 +126,11 @@ class AuthController extends Controller
         $user->update(['last_login_at' => now()]);
 
         $token = $user->createToken('auth')->plainTextToken;
+        $role = DB::table('workspace_user')
+                ->where('user_id', $user->id)
+                ->value('role');
 
+        $user->role = $role;
         return response()->json([
             'token' => $token,
             'user'  => $user,
@@ -133,7 +142,6 @@ class AuthController extends Controller
      */
     public function setPassword(Request $request)
     {
-        // echo "dsdsds";die;
         $request->validate([
             'password' => 'required|string|min:8|confirmed',
         ]);
