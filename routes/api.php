@@ -11,6 +11,9 @@ Route::post('/auth/google', [AuthController::class, 'google']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
     Route::post('/auth/set-password', [AuthController::class, 'setPassword']);
     Route::get('/me', [AuthController::class, 'me']);
 

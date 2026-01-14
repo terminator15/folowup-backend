@@ -86,7 +86,7 @@ class AuthController extends Controller
                 ->where('user_id', $user->id)
                 ->value('role');
             $user->role = $role;
-            
+
             return response()->json([
                 'token' => $token,
                 'user'  => $user,
@@ -163,4 +163,32 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+
+    /**
+     * Logout user (revoke current token)
+     */
+    public function logout(Request $request)
+    {
+        // Delete only the current token
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
+
+    /**
+     * Logout from all devices (revoke all tokens)
+     */
+    public function logoutAll(Request $request)
+    {
+        // Delete all tokens of this user
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Logged out from all devices successfully'
+        ]);
+    }
+
+
 }
