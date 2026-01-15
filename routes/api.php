@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
 use App\Http\Controllers\LeadActivityController;
+use App\Http\Controllers\MasterController;
+use App\Http\Controllers\UserController;
 
 Route::post('/auth/google', [AuthController::class, 'google']);
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -16,7 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
     Route::post('/auth/set-password', [AuthController::class, 'setPassword']);
     Route::get('/me', [AuthController::class, 'me']);
-
+    Route::get('/masters/lead-types', [MasterController::class, 'leadTypes']);
     Route::post('/leads', [LeadController::class, 'store']);
     Route::get('/leads', [LeadController::class, 'index']);
     Route::get('/leads/{lead}', [LeadController::class, 'show']);
@@ -60,5 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/leads/{lead}/status', [LeadActivityController::class, 'changeStatus']);
     Route::post('/leads/{lead}/followup', [LeadActivityController::class, 'addFollowup']);
     Route::post('/leads/{lead}/call-log', [LeadActivityController::class, 'logCall']);
+
+    Route::get('/users/search', [UserController::class, 'search']);
 });
 

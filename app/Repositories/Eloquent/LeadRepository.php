@@ -19,7 +19,7 @@ class LeadRepository implements LeadRepositoryInterface
             'owner_id' => $dto->ownerId,
             'name' => $dto->name,
             'phone' => $dto->phone,
-            'lead_type' => $dto->leadType,
+            'lead_type_id' => $dto->leadTypeId,
             'deal_value' => $dto->dealValue,
         ]);
 
@@ -36,7 +36,10 @@ class LeadRepository implements LeadRepositoryInterface
 
     public function getAll(LeadFilterDTO $dto): LengthAwarePaginator
     {
-        $query = Lead::with('meta');
+        $query = Lead::with([
+            'meta',
+            'leadType:id,name,is_active',
+        ]);
 
         if ($dto->workspaceId) {
         // Team workspace
@@ -47,8 +50,8 @@ class LeadRepository implements LeadRepositoryInterface
                 ->where('owner_id', $dto->userId);
         }
 
-        if ($dto->leadType) {
-            $query->where('lead_type', $dto->leadType);
+        if ($dto->lead_type_id !== null) {
+            $query->where('lead_type_id', $dto->lead_type_id);
         }
 
         if ($dto->minAmount !== null) {

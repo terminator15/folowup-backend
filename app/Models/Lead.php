@@ -11,12 +11,17 @@ class Lead extends Model
         'owner_id',
         'name',
         'phone',
-        'lead_type',
+        'lead_type_id',
         'deal_value',
     ];
 
     public function meta()
     {
         return $this->hasMany(LeadMeta::class, 'lead_id');
+    }
+
+    public function leadType()
+    {
+        return $this->belongsTo(LeadType::class, 'lead_type_id');
     }
 }
