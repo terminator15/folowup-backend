@@ -21,6 +21,7 @@ class LeadController extends Controller
         $request->validate([
             'name' => 'required|string',
             'phone' => 'required|string',
+            'workspace_id' => 'required|integer|exists:workspaces,id',
         ]);
 
         $dto = CreateLeadDTO::fromRequest(
@@ -39,6 +40,7 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $filterDto = LeadFilterDTO::fromRequest($request->all(), $request->user()->id);
+        // dd($request->user()->id);
         $leads = $this->service->list($filterDto);
 
         return response()->json([
@@ -61,7 +63,7 @@ class LeadController extends Controller
             'id' => $lead->id,
             'name' => $lead->name,
             'phone' => $lead->phone,
-            'lead_type' => $lead->lead_type,
+            'lead_type' => $lead->lead_type_id,
             'deal_value' => $lead->deal_value,
             'owner_id' => $lead->owner_id,
             'workspace_id' => $lead->workspace_id,
@@ -71,6 +73,12 @@ class LeadController extends Controller
 
     public function update(Request $request, Lead $lead)
     {
+        $request->validate([
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'workspace_id' => 'required|integer|exists:workspaces,id',
+        ]);
+        
         $this->authorize('update', $lead);
 
         $dto = UpdateLeadDTO::fromRequest($request->all());

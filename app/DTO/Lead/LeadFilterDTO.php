@@ -10,7 +10,7 @@ class LeadFilterDTO
     public function __construct(
         public readonly ?int $workspaceId,
         public readonly int $userId,
-        public readonly ?string $leadType,
+        public readonly ?int $lead_type_id,
         public readonly ?float $minAmount,
         public readonly ?float $maxAmount,
         public readonly int $page,
@@ -24,7 +24,7 @@ class LeadFilterDTO
         return new self(
             workspaceId: $data['workspace_id'] ?? null,
             userId: $userId,
-            leadType: $data['lead_type'] ?? null,
+            lead_type_id: $data['lead_type_id'] ?? null,
             minAmount: isset($data['min_amount']) ? (float) $data['min_amount'] : null,
             maxAmount: isset($data['max_amount']) ? (float) $data['max_amount'] : null,
             page: isset($data['page']) ? max(1, (int) $data['page']) : 1,

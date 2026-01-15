@@ -7,8 +7,8 @@ class UpdateLeadDTO
     public function __construct(
         public ?string $name,
         public ?string $phone,
-        public ?string $leadType,
-        public ?int $dealValue,
+        public ?int $leadTypeId,
+        public ?float $dealValue,
         public array $meta = []
     ) {}
 
@@ -17,7 +17,7 @@ class UpdateLeadDTO
         return new self(
             name: $data['name'] ?? null,
             phone: $data['phone'] ?? null,
-            leadType: $data['lead_type'] ?? null,
+            leadTypeId: $data['lead_type_id'] ?? null,
             dealValue: $data['deal_value'] ?? null,
             meta: $data['meta'] ?? []
         );

@@ -9,7 +9,7 @@ class CreateLeadDTO
         public readonly int $ownerId,
         public readonly string $name,
         public readonly string $phone,
-        public readonly ?string $leadType,
+        public readonly ?int $leadTypeId,
         public readonly ?float $dealValue,
         public readonly array $meta
     ) {}
@@ -17,11 +17,11 @@ class CreateLeadDTO
     public static function fromRequest(array $data, int $ownerId): self
     {
         return new self(
-            workspaceId: $data['workspace_id'] ?? null,
+            workspaceId: $data['workspace_id'],
             ownerId: $ownerId,
             name: $data['name'],
             phone: $data['phone'],
-            leadType: $data['lead_type'] ?? null,
+            leadTypeId: $data['lead_type_id'] ?? null,
             dealValue: $data['deal_value'] ?? null,
             meta: $data['meta'] ?? []
         );
