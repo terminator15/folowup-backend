@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['workspace_id', 'is_active']);
+            $table->index(['is_active']);
         });
     }
 
