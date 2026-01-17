@@ -6,25 +6,34 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: folowup_app
+    restart: unless-stopped
+    working_dir: /var/www
     volumes:
       - .:/var/www
-    ports:
-      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-        
-    command: >
-      sh -c "
-      composer install &&
-      php artisan key:generate &&
-      sleep 10 &&
-      php artisan migrate &&
-      php artisan serve --host=0.0.0.0 --port=8000
-      "
+    networks:
+      - folowup
+
+  nginx:
+    image: nginx:alpine
+    container_name: folowup_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - folowup
+
   db:
     image: mysql:8.0
     container_name: folowup_db
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: folowup
       MYSQL_USER: folowup_user
@@ -37,7 +46,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - folowup
 
+networks:
+  folowup:
 
 volumes:
   dbdata:
+
