@@ -46,7 +46,7 @@ class DevSeeder extends Seeder
                 'owner_id' => $user->id,   // ✅ ADD THIS
                 'name' => 'Rajesh Kumar',
                 'phone' => '9876543210',
-                'lead_type' => 'home_loan',
+                'lead_type' => 1,
                 'deal_value' => 5000000,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -57,7 +57,7 @@ class DevSeeder extends Seeder
                 'owner_id' => $user->id,   // ✅ ADD THIS
                 'name' => 'Amit Sharma',
                 'phone' => '9123456789',
-                'lead_type' => 'personal_loan',
+                'lead_type_id' => 2,
                 'deal_value' => 800000,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -85,3 +85,16 @@ class DevSeeder extends Seeder
         });
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
