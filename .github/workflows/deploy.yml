@@ -19,7 +19,6 @@ jobs:
           script: |
             cd ~/leadapp/folowup-backend
             git pull origin main
-            docker-compose down
             docker-compose up -d --build
             docker-compose exec -T app php artisan migrate --force
 
