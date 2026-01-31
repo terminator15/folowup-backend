@@ -14,6 +14,16 @@ class DevSeeder extends Seeder
         DB::transaction(function () {
 
             // 1. Create user
+            $manager = User::create([
+                'name' => 'Manager User',
+                'email' => 'manager@followup.com',
+                'password' => Hash::make('password123'),
+                'registered_at' => now(),
+                'password_set_at' => now(),
+                'is_active' => true,
+            ]);
+
+
             $user = User::create([
                 'name' => 'Dev User',
                 'email' => 'dev@followup.com',
@@ -31,10 +41,26 @@ class DevSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
+            $workspaceId1 = DB::table('workspaces')->insertGetId([
+                'name' => 'Manager Workspace',
+                'is_team' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // 3. Attach user to workspace
+            DB::table('workspace_user')->insert([
+                'workspace_id' => $workspaceId1,
+                'user_id' => $user->id,
+                'role' => 'admin',
+                'joined_at' => now(),
+                'status' => 'active',
+            ]);
+
             // 3. Attach user to workspace
             DB::table('workspace_user')->insert([
                 'workspace_id' => $workspaceId,
-                'user_id' => $user->id,
+                'user_id' => $manager->id,
                 'role' => 'admin',
                 'joined_at' => now(),
                 'status' => 'active',
