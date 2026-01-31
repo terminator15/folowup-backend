@@ -7,14 +7,15 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        Schema::table('leads', function (Blueprint $table) {
-            $table->unsignedBigInteger('lead_type_id')->nullable()->after('id')->index();
-        });
 
-        
         Schema::table('leads', function (Blueprint $table) {
-            $table->dropColumn('lead_type');
-        });
+        $table->unsignedBigInteger('lead_type_id')
+              ->nullable()
+              ->after('id')
+              ->index();
+
+        $table->dropColumn('lead_type');
+    });
     }
 
     public function down()
