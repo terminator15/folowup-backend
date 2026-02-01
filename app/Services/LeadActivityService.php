@@ -16,9 +16,11 @@ class LeadActivityService
     ): void {
         LeadActivity::create([
             'lead_id'   => $lead->id,
-            'from'      => $from,
-            'to'        => $to,
-            'action'    => 'status_changed',
+            'meta' => [
+                'from' => $from,
+                'to' => $to
+            ],
+            'type'    => 'status_changed',
             'user_id'   => $user_id,
         ]);
     }
