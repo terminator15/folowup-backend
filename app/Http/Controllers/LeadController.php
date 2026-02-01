@@ -10,6 +10,7 @@ use App\DTO\Lead\LeadFilterDTO;
 use App\DTO\Lead\UpdateLeadDTO;
 use App\Models\Lead;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use  App\Services\LeadActivityService;
 
 class LeadController extends Controller
 {
