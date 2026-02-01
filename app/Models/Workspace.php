@@ -32,7 +32,7 @@ class Workspace extends Model
     public function managers(): BelongsToMany
     {
         return $this->users()
-            ->wherePivotIn('role', ['manager', 'admin'])
+            ->wherePivotIn('role', ['manager'])
             ->wherePivot('status', 'active');
     }
 

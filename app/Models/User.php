@@ -71,7 +71,7 @@ class User extends Authenticatable
     public function isManagerOf(int $workspaceId): bool
     {
         $membership = $this->workspaceMembership($workspaceId);
-        return $membership && in_array($membership->pivot->role, ['admin', 'manager']);
+        return $membership && in_array($membership->pivot->role, ['manager']);
     }
 
     public function workspaceMemberships()

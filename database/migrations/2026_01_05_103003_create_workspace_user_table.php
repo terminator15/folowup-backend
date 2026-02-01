@@ -17,7 +17,7 @@ return new class extends Migration
         $table->unsignedBigInteger('workspace_id');
         $table->unsignedBigInteger('user_id');
 
-        $table->string('role'); // admin | manager | member
+        $table->string('role'); // manager | member
         $table->string('designation')->nullable();
         $table->timestamp('joined_at')->useCurrent();
         $table->string('status')->default('active');
