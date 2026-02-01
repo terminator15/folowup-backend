@@ -27,11 +27,11 @@ class LeadService
     public function update(Lead $lead, UpdateLeadDTO $dto): Lead
     {
         $lead->update(array_filter([
-            'name' => $dto->name,
-            'phone' => $dto->phone,
-            'lead_type' => $dto->leadType,
-            'deal_value' => $dto->dealValue,
-        ]));
+            'name'         => $dto->name,
+            'phone'        => $dto->phone,
+            'lead_type_id' => $dto->leadTypeId,
+            'deal_value'   => $dto->dealValue,
+        ], fn ($value) => $value !== null));
 
         if (!empty($dto->meta)) {
             foreach ($dto->meta as $key => $value) {

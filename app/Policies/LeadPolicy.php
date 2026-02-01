@@ -30,6 +30,7 @@ class LeadPolicy
         if ($lead->owner_id === $user->id) {
             return true;
         }
+        return false;
     }
 
     /**
