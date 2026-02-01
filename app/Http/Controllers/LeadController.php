@@ -10,6 +10,7 @@ use App\DTO\Lead\LeadFilterDTO;
 use App\DTO\Lead\UpdateLeadDTO;
 use App\Models\Lead;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use  App\Services\LeadActivityService;
 
 class LeadController extends Controller
 {
@@ -83,7 +84,7 @@ class LeadController extends Controller
         $request->validate([
             'deal_value' => ['nullable', 'numeric', 'min:0'],
             'email'      => ['nullable', 'email:rfc,dns'],
-            'status'     => ['nullable', 'string', 'in:open,won,lost'],
+            'status'     => ['nullable', 'string'],
         ]);
 
         $this->authorize('update', $lead);
