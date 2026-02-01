@@ -41,27 +41,6 @@ class LeadActivityController extends Controller
     }
 
     /**
-     * Change the status of the lead
-     */
-    public function changeStatus(Request $request, Lead $lead)
-    {
-        $request->validate([
-            'from' => 'required|string',
-            'to' => 'required|string'
-        ]);
-
-        return LeadActivity::create([
-            'lead_id' => $lead->id,
-            'user_id' => auth()->id(),
-            'type' => 'status_change',
-            'meta' => [
-                'from' => $request->from,
-                'to' => $request->to
-            ]
-        ]);
-    }
-
-    /**
      * Schedule a follow-up activity for the lead
      */
     public function addFollowup(Request $request, Lead $lead)

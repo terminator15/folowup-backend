@@ -14,6 +14,7 @@ class Lead extends Model
         'lead_type_id',
         'deal_value',
         'email',
+        'status',
     ];
 
     public function meta()
