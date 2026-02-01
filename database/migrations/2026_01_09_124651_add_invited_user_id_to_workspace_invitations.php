@@ -15,6 +15,9 @@ return new class extends Migration
         $table->unsignedBigInteger('invited_user_id')->after('workspace_id');
 
         $table->dropColumn('email');
+        $table->dropUnique('workspace_invitations_workspace_id_email_unique');
+        $table->unique(['workspace_id', 'invited_user_id'], 'workspace_invitations_workspace_id_invited_user_unique');
+
 });
 
     }

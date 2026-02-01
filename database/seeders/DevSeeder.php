@@ -26,7 +26,7 @@ class DevSeeder extends Seeder
 
             $user = User::create([
                 'name' => 'Dev User',
-                'email' => 'dev@followup.com',
+                'email' => 'dev6@followup.com',
                 'password' => Hash::make('password123'),
                 'registered_at' => now(),
                 'password_set_at' => now(),
@@ -52,7 +52,7 @@ class DevSeeder extends Seeder
             DB::table('workspace_user')->insert([
                 'workspace_id' => $workspaceId1,
                 'user_id' => $user->id,
-                'role' => 'admin',
+                'role' => 'manager',
                 'joined_at' => now(),
                 'status' => 'active',
             ]);
@@ -61,7 +61,7 @@ class DevSeeder extends Seeder
             DB::table('workspace_user')->insert([
                 'workspace_id' => $workspaceId,
                 'user_id' => $manager->id,
-                'role' => 'admin',
+                'role' => 'manager',
                 'joined_at' => now(),
                 'status' => 'active',
             ]);
