@@ -31,6 +31,8 @@ class LeadService
             'phone'        => $dto->phone,
             'lead_type_id' => $dto->leadTypeId,
             'deal_value'   => $dto->dealValue,
+            'email'        => $dto->email,
+            'status'        => $dto->status,
         ], fn ($value) => $value !== null));
 
         if (!empty($dto->meta)) {
