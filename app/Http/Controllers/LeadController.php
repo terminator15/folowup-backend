@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 use App\DTO\Lead\LeadFilterDTO;
 use App\DTO\Lead\UpdateLeadDTO;
 use App\Models\Lead;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class LeadController extends Controller
 {
+
+    use AuthorizesRequests;
+
     public function __construct(
         private LeadService $service
     ) {}
@@ -22,6 +26,7 @@ class LeadController extends Controller
             'name' => 'required|string',
             'phone' => 'required|string',
             'workspace_id' => 'required|integer|exists:workspaces,id',
+            'deal_value' => ['nullable', 'numeric', 'min:0']
         ]);
 
         $dto = CreateLeadDTO::fromRequest(
@@ -40,7 +45,6 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         $filterDto = LeadFilterDTO::fromRequest($request->all(), $request->user()->id);
-        // dd($request->user()->id);
         $leads = $this->service->list($filterDto);
 
         return response()->json([
@@ -74,9 +78,7 @@ class LeadController extends Controller
     public function update(Request $request, Lead $lead)
     {
         $request->validate([
-            'name' => 'required|string',
-            'phone' => 'required|string',
-            'workspace_id' => 'required|integer|exists:workspaces,id',
+            'deal_value' => ['nullable', 'numeric', 'min:0'],
         ]);
         
         $this->authorize('update', $lead);
