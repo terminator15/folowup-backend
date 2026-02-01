@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 
 class LeadActivityController extends Controller
 {
+    /**
+     * List activities for a lead
+     */
     public function index(Lead $lead)
     {
         return LeadActivity::with('user:id,name')
@@ -18,6 +21,9 @@ class LeadActivityController extends Controller
             ->get();
     }
 
+    /**
+     * Add a note to the lead
+     */
     public function addNote(Request $request, Lead $lead)
     {
         $request->validate([
@@ -34,27 +40,9 @@ class LeadActivityController extends Controller
         ]);
     }
 
-    public function changeStatus(Request $request, Lead $lead)
-    {
-        $request->validate([
-            'from' => 'required|string',
-            'to' => 'required|string'
-        ]);
-
-        // Update lead status also
-        $lead->update(['status' => $request->to]);
-
-        return LeadActivity::create([
-            'lead_id' => $lead->id,
-            'user_id' => auth()->id(),
-            'type' => 'status_change',
-            'meta' => [
-                'from' => $request->from,
-                'to' => $request->to
-            ]
-        ]);
-    }
-
+    /**
+     * Schedule a follow-up activity for the lead
+     */
     public function addFollowup(Request $request, Lead $lead)
     {
         $request->validate([
@@ -73,6 +61,9 @@ class LeadActivityController extends Controller
         ]);
     }
 
+    /**
+     * Log a call activity for the lead
+     */
     public function logCall(Request $request, Lead $lead)
     {
         $request->validate([

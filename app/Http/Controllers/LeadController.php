@@ -26,7 +26,8 @@ class LeadController extends Controller
             'name' => 'required|string',
             'phone' => 'required|string',
             'workspace_id' => 'required|integer|exists:workspaces,id',
-            'deal_value' => ['nullable', 'numeric', 'min:0']
+            'deal_value' => ['nullable', 'numeric', 'min:0'],
+            'email'      => ['nullable', 'email:rfc,dns'],
         ]);
 
         $dto = CreateLeadDTO::fromRequest(
@@ -67,9 +68,11 @@ class LeadController extends Controller
             'id' => $lead->id,
             'name' => $lead->name,
             'phone' => $lead->phone,
+            'status' => $lead->status,
             'lead_type' => $lead->lead_type_id,
             'deal_value' => $lead->deal_value,
             'owner_id' => $lead->owner_id,
+            'email' => $lead->email,
             'workspace_id' => $lead->workspace_id,
             'meta' => $lead->meta,
         ]);
@@ -79,13 +82,29 @@ class LeadController extends Controller
     {
         $request->validate([
             'deal_value' => ['nullable', 'numeric', 'min:0'],
+            'email'      => ['nullable', 'email:rfc,dns'],
+            'status'     => ['nullable', 'string', 'in:open,won,lost'],
         ]);
-        
+
         $this->authorize('update', $lead);
+
+        $oldStatus = $lead->status;
 
         $dto = UpdateLeadDTO::fromRequest($request->all());
 
         $lead = $this->service->update($lead, $dto);
+
+        if (
+            $dto->status !== null &&
+            $dto->status !== $oldStatus
+        ) {
+            app(LeadActivityService::class)->logStatusChange(
+                lead: $lead,
+                from: $oldStatus,
+                to: $dto->status,
+                user_id: auth()->id()
+            );
+        }
 
         return response()->json($lead);
     }

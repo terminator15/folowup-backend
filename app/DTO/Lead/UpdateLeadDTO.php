@@ -9,6 +9,8 @@ class UpdateLeadDTO
         public ?string $phone,
         public ?int $leadTypeId,
         public ?float $dealValue,
+        public ?string $email,
+        public ?string $status,
         public array $meta = []
     ) {}
 
@@ -18,6 +20,8 @@ class UpdateLeadDTO
             name: $data['name'] ?? null,
             phone: $data['phone'] ?? null,
             leadTypeId: $data['lead_type_id'] ?? null,
+            email: $data['email'] ?? null,
+            status: $data['status'] ?? null,
             dealValue: $data['deal_value'] ?? null,
             meta: $data['meta'] ?? []
         );
