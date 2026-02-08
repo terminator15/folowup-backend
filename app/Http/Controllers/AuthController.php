@@ -11,6 +11,43 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+
+     public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'unique:users,email'],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)->letters()->numbers()
+            ],
+            'phone'    => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $user = User::create([
+            'name'            => $validated['name'],
+            'email'           => $validated['email'],
+            'phone'           => $validated['phone'] ?? null,
+            'password'        => Hash::make($validated['password']),
+            'password_set_at' => now(),
+            'registered_at'   => now(),
+            'is_active'       => 1,
+        ]);
+
+        $token = $user->createToken('lms_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Registration successful',
+            'user' => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+            ],
+            'token' => $token,
+        ], 201);
+    }
+
     /**
      * Google Login
      */
