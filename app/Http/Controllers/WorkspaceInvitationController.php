@@ -140,4 +140,33 @@ class WorkspaceInvitationController extends Controller
             'message' => 'User removed from workspace'
         ]);
     }
+
+    public function myInvitesForMember()
+    {
+        $user = auth()->user();
+
+        $invitations = WorkspaceInvitation::with(['inviter', 'workspace'])
+            ->where('invited_user_id', $user->id)
+            ->get()
+            ->groupBy('created_by')
+            ->map(function ($group) {
+                return [
+                    'inviter' => $group->first()->inviter,
+                    'invitations' => $group->map(function ($invite) {
+                        return [
+                            'id' => $invite->id,
+                            'role' => $invite->role,
+                            'status' => $invite->status,
+                            'workspace' => $invite->workspace,
+                            'created_at' => $invite->created_at,
+                        ];
+                    })
+                ];
+            })
+            ->values();
+
+        return response()->json($invitations);
+    }
+
+
 }

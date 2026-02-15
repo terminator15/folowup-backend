@@ -38,6 +38,11 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 
     Route::get(
+        '/my-workspace-invitations',
+        [WorkspaceInvitationController::class, 'myInvitesForMember']
+    );
+
+    Route::get(
         '/workspace-invitations',
         [WorkspaceInvitationController::class, 'myInvites']
     );
