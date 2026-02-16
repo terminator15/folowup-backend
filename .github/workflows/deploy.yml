@@ -32,6 +32,9 @@ jobs:
             git pull origin main
 
             docker compose up -d --build
+            docker compose exec -T app chown -R www-data:www-data storage bootstrap/cache
+            docker compose exec -T app chmod -R 775 storage bootstrap/cache
+
 
             echo "Waiting for MySQL to be ready..."
             until docker compose exec -T db mysqladmin ping -h "localhost" --silent; do
