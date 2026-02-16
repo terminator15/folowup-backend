@@ -29,15 +29,22 @@ class WorkspaceInvitationController extends Controller
             'email' => 'required|email',
             'role' => 'required|in:member',
         ]);
-        $this->authorize('invite', [$workspace, $request->role]);
-        $user = Auth::user();
-        $invite = $this->service->invite(
+
+        $this->authorize('invite', [$workspace, $data['role']]);
+
+        $result = $this->service->invite(
             $workspace,
-            $request->email,
-            $user,
+            $data['email'],
+            Auth::user(),
         );
 
-        return response()->json($invite, 201);
+        if (! $result['success']) {
+            return response()->json([
+                'message' => $result['error']
+            ], 422);
+        }
+		
+        return response()->json($result['data'], 201);
     }
 
     /**
