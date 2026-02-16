@@ -220,8 +220,26 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user()->load([
+            'workspaces' => fn ($q) => $q->wherePivot('status', 'active')
+        ]);
+
+        $workspace = $user->workspaces->first();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+
+            'workspace' => $workspace ? [
+                'id' => $workspace->id,
+                'name' => $workspace->name,
+                'role' => $workspace->pivot->role,
+                'designation' => $workspace->pivot->designation,
+            ] : null,
+        ]);
     }
+
 
     /**
      * Logout user (revoke current token)
