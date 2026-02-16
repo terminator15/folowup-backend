@@ -16,19 +16,19 @@ services:
     networks:
       - folowup
 
-  nginx:
-    image: nginx:alpine
-    container_name: folowup_nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - .:/var/www
-      - ./docker/nginx:/etc/nginx/conf.d
-    depends_on:
-      - app
-    networks:
-      - folowup
+        #  nginx:
+        # image: nginx:alpine
+        #container_name: folowup_nginx
+        # restart: unless-stopped
+        # ports:
+        #  - "80:80"
+        #    volumes:
+        #      - .:/var/www
+        #      - ./docker/nginx:/etc/nginx/conf.d
+        #    depends_on:
+        #      - app
+        #    networks:
+        #      - folowup
 
   db:
     image: mysql:8.0
