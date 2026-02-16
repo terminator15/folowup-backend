@@ -14,43 +14,32 @@ class WorkspaceInvitationService
      * Invite a user by email
      */
     public function invite(
-        Workspace $workspace,
-        string $invitedUserEmail,
-        User $inviter
-    ): WorkspaceInvitation {
+    Workspace $workspace,
+    string $invitedUserEmail,
+    User $inviter
+    ): array {
 
         $user = User::where('email', $invitedUserEmail)->first();
-        if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => 'User does not exist in the system',
-            ]);
+
+        if (! $user) {
+            return [
+                'success' => false,
+                'error' => 'User does not exist in the system'
+            ];
         }
 
-        // Already a member?
         $alreadyMember = $workspace->users()
             ->where([
                 'user_id' => $user->id,
                 'status' => 'active'
             ])
             ->exists();
-            
+
         if ($alreadyMember) {
-            throw ValidationException::withMessages([
-                'email' => 'User is already a member of this workspace'
-            ]);
-        }
-
-        // Existing pending invite?
-        $existingInvite = WorkspaceInvitation::where([
-            'workspace_id' => $workspace->id,
-            'invited_user_id' => $user->id,
-            'status' => 'pending',
-        ])->first();
-
-        if ($existingInvite) {
-            throw ValidationException::withMessages([
-                'email' => 'Invitation already sent'
-            ]);
+            return [
+                'success' => false,
+                'error' => 'User is already a member of this workspace'
+            ];
         }
 
         $invite = WorkspaceInvitation::firstOrCreate(
@@ -66,13 +55,18 @@ class WorkspaceInvitationService
         );
 
         if (! $invite->wasRecentlyCreated) {
-            throw ValidationException::withMessages([
-                'email' => 'Invitation already sent'
-            ]);
+            return [
+                'success' => false,
+                'error' => 'Invitation already sent'
+            ];
         }
 
-        return $invite;
+        return [
+            'success' => true,
+            'data' => $invite
+        ];
     }
+
 
     /**
      * Accept an invitation
