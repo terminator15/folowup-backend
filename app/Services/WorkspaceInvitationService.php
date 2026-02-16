@@ -53,13 +53,25 @@ class WorkspaceInvitationService
             ]);
         }
 
-        return WorkspaceInvitation::create([
-            'workspace_id' => $workspace->id,
-            'invited_user_id' => $user->id,
-            'invited_by' => $inviter->id,
-            'role' => 'member',
-            'status' => 'pending',
-        ]);
+        $invite = WorkspaceInvitation::firstOrCreate(
+            [
+                'workspace_id'    => $workspace->id,
+                'invited_user_id' => $user->id,
+            ],
+            [
+                'invited_by' => $inviter->id,
+                'role'       => 'member',
+                'status'     => 'pending',
+            ]
+        );
+
+        if (! $invite->wasRecentlyCreated) {
+            throw ValidationException::withMessages([
+                'email' => 'Invitation already sent'
+            ]);
+        }
+
+        return $invite;
     }
 
     /**
