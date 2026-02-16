@@ -167,6 +167,4 @@ class WorkspaceInvitationController extends Controller
 
         return response()->json($invitations);
     }
-
-
 }
