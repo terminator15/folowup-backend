@@ -52,6 +52,10 @@ jobs:
                 cp .env.example .env
               fi
             "
+            docker compose exec -T app mkdir -p \
+            storage/framework/{views,cache,sessions} \
+            storage/logs \
+            bootstrap/cache
 
             docker compose exec -T app php artisan key:generate --force
             docker compose exec -T app php artisan migrate --force
